@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"net/http"
+	"log"
 	"os"
 
+	"github.com/muhammad-asn/idcloudhost-go-lib/api"
 	"github.com/muhammad-asn/idcloudhost-go-lib/s3"
 )
 
 func main() {
-	c := http.Client{}
 	authToken := os.Getenv("AUTH_TOKEN")
 
 	if authToken == "" {
@@ -22,12 +22,15 @@ func main() {
 		BillingAccountId: 1200190928,
 	}
 
-	s3api := s3.S3Api{}
-	s3api.Init(&c, authToken)
+	client, err := api.NewClient(authToken)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Create
-	s3api.Create(s3bucket)
+	fmt.Println(client.S3.Create(s3bucket))
 
 	// Delete
-	s3api.Delete(s3bucket)
+	fmt.Println(client.S3.Delete(s3bucket))
 }
