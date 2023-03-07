@@ -9,7 +9,6 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"time"
 )
 
 type HTTPClient interface {
@@ -24,13 +23,13 @@ type S3Api struct {
 	S3Bucket       S3Bucket
 }
 type S3Bucket struct {
-	Name             string    `json:"name"`
-	SizeBytes        int       `json:"size_bytes"`
-	BillingAccountId int       `json:"billing_account_id"`
-	NumObjects       int       `json:"num_objects"`
-	CreatedAt        time.Time `json:"created_at"`
-	ModifiedAt       time.Time `json:"modified_at"`
-	IsSuspended      bool      `json:"is_suspended"`
+	Name             string `json:"name"`
+	SizeBytes        int    `json:"size_bytes"`
+	BillingAccountId int    `json:"billing_account_id"`
+	NumObjects       int    `json:"num_objects"`
+	CreatedAt        string `json:"created_at"`
+	ModifiedAt       string `json:"modified_at"`
+	IsSuspended      bool   `json:"is_suspended"`
 }
 
 func (s3 *S3Api) Init(c HTTPClient, authToken string) error {
@@ -50,6 +49,28 @@ func (s3 *S3Api) Init(c HTTPClient, authToken string) error {
 	}
 
 	return nil
+}
+
+func (s3 *S3Api) Get(sb S3Bucket) error {
+
+	apiEndpoint := fmt.Sprintf("https://api.idcloudhost.com/v1/storage/bucket?name=%s", sb.Name)
+
+	req, err := http.NewRequest("GET", apiEndpoint, nil)
+
+	if err != nil {
+		return fmt.Errorf("got error %s", err.Error())
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("apikey", s3.AuthToken)
+
+	r, err := s3.c.Do(req)
+
+	defer r.Body.Close()
+	if r.StatusCode != http.StatusOK {
+		return errors.New(fmt.Sprintf("%v", r.StatusCode))
+	}
+	return json.NewDecoder(r.Body).Decode(&s3.S3Bucket)
 }
 
 func (s3 *S3Api) Create(sb S3Bucket) error {
@@ -75,7 +96,7 @@ func (s3 *S3Api) Create(sb S3Bucket) error {
 	}
 
 	defer r.Body.Close()
-	if r.StatusCode != http.StatusOK {
+	if r.StatusCode != http.StatusCreated {
 		return errors.New(fmt.Sprintf("%v", r.StatusCode))
 	}
 	return json.NewDecoder(r.Body).Decode(&s3.S3Bucket)
@@ -133,7 +154,7 @@ func (s3 *S3Api) Delete(sb S3Bucket) error {
 	}
 
 	defer r.Body.Close()
-	if r.StatusCode != http.StatusOK {
+	if r.StatusCode != http.StatusNoContent {
 		return errors.New(fmt.Sprintf("%v", r.StatusCode))
 	}
 	return json.NewDecoder(r.Body).Decode(&s3.S3Bucket)

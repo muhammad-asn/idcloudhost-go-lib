@@ -18,7 +18,7 @@ func main() {
 	}
 
 	s3bucket := s3.S3Bucket{
-		Name:             "test-bucket-terraform-2",
+		Name:             "test-bucket-terraform-3",
 		BillingAccountId: 1200190928,
 	}
 
@@ -29,8 +29,11 @@ func main() {
 	}
 
 	// Create
-	fmt.Println(client.S3.Create(s3bucket))
+	client.S3.Create(s3bucket)
+
+	// Get
+	client.S3.Get(s3bucket)
 
 	// Delete
-	fmt.Println(client.S3.Delete(s3bucket))
+	client.S3.Delete(s3bucket)
 }
