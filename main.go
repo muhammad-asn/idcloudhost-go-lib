@@ -32,7 +32,7 @@ func main() {
 	client.S3.Create(s3bucket)
 
 	// Get
-	client.S3.Get(s3bucket)
+	client.S3.Get(s3bucket.Name)
 
 	// Delete
 	client.S3.Delete(s3bucket)

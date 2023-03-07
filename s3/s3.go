@@ -51,9 +51,9 @@ func (s3 *S3Api) Init(c HTTPClient, authToken string) error {
 	return nil
 }
 
-func (s3 *S3Api) Get(sb S3Bucket) error {
+func (s3 *S3Api) Get(bucketName string) error {
 
-	apiEndpoint := fmt.Sprintf("https://api.idcloudhost.com/v1/storage/bucket?name=%s", sb.Name)
+	apiEndpoint := fmt.Sprintf("https://api.idcloudhost.com/v1/storage/bucket?name=%s", bucketName)
 
 	req, err := http.NewRequest("GET", apiEndpoint, nil)
 
